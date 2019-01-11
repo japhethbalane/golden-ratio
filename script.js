@@ -26,7 +26,7 @@ function Point(angle, i) {
         context.arc(this.x, this.y, this.r, Math.PI*2, false);
         context.fill();
         context.shadowBlur = 0;
-        if (pressing) {
+        if (pressing && mouse.x > -1) {
             context.strokeStyle = i % 2 == 0 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)';
             context.beginPath();
             context.moveTo(this.x, this.y);
