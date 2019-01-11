@@ -6,20 +6,33 @@ canvas.height = window.innerHeight;
 var points = [];
 var mult = 0;
 
+var mouse = {x: -1, y: -1};
+var pressing = false;
+
 function Point(angle, i) {
     this.i = i * 2;
-    this.a = angle % 360;
-    this.x = (canvas.width / 2) + (Math.cos(this.a * (180 / Math.PI)) * this.i);
-    this.y = (canvas.height / 2) + (Math.sin(this.a * (180 / Math.PI)) * this.i);
-    this.r = 2 + this.i / 100;
+    this.r = 3;
+    this.updateAngle = function(a) {
+        this.a = a % 360;
+        this.x = (canvas.width / 2) + (Math.cos(this.a * (180 / Math.PI)) * this.i);
+        this.y = (canvas.height / 2) + (Math.sin(this.a * (180 / Math.PI)) * this.i);
+    };
+    this.updateAngle(angle);
     this.draw = function() {
         context.fillStyle = 'white';
         context.shadowBlur = 16;
-        context.shadowColor = 'white';
+        context.shadowColor = 'gold';
         context.beginPath();
         context.arc(this.x, this.y, this.r, Math.PI*2, false);
         context.fill();
         context.shadowBlur = 0;
+        if (pressing) {
+            context.strokeStyle = i % 2 == 0 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)';
+            context.beginPath();
+            context.moveTo(this.x, this.y);
+            context.lineTo(mouse.x, mouse.y);
+            context.stroke();
+        }
     }
 }
 
@@ -31,10 +44,18 @@ function initializePoints(count, mult) {
     }
 };
 
+function updatePoints(mult) {
+    var a = 0;
+    for (var point of points) {
+        point.updateAngle(a + (360 * mult));
+        a += (360 * mult);
+    }
+};
+
 context.fillStyle = 'black';
 context.fillRect(0, 0, canvas.width, canvas.height);
 function clearCanvas() {
-    context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    context.fillStyle = 'rgba(0, 0, 0, 1)';
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -50,13 +71,26 @@ function drawPoints() {
     }
 };
 
+initializePoints(200, mult);
 function world() {
     clearCanvas();
-    initializePoints(100, mult);
+    updatePoints(mult);
     drawPoints();
     mult += 0.00000001;
     mult = mult >= 1 ? mult % 1: mult;
-    points = [];
 }
 
-setInterval(world, 1);
+setInterval(world, 30);
+
+window.addEventListener('mousemove', function(e) {
+    mouse.x = e.pageX;
+    mouse.y = e.pageY;
+});
+
+window.addEventListener('mousedown', function(e) {
+    pressing = true;
+});
+
+window.addEventListener('mouseup', function(e) {
+    pressing = false;
+});
