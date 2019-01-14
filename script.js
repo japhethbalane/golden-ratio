@@ -27,7 +27,8 @@ function Point(angle, i) {
         context.fill();
         context.shadowBlur = 0;
         if (pressing && mouse.x > -1) {
-            context.strokeStyle = i % 2 == 0 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)';
+            // context.strokeStyle = i % 2 == 0 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)';
+            context.strokeStyle = 'rgba(255,215,0,0.1)';
             context.beginPath();
             context.moveTo(this.x, this.y);
             context.lineTo(mouse.x, mouse.y);
@@ -65,17 +66,26 @@ function getHypothenuse(x1, y1, x2, y2) {
     return Math.sqrt((x * x) + (y * y));
 }
 
-function drawPoints() {
-    for (var p of points) {
-        p.draw();
-    }
-};
-
 initializePoints(200, mult);
 function world() {
     clearCanvas();
     updatePoints(mult);
-    drawPoints();
+    for (var p of points) {
+        p.draw();
+    }
+    if (!pressing) {
+        for (var pp of points) {
+            for (var p of points) {
+                if (pp != p && getHypothenuse(pp.x, pp.y, p.x, p.y) < 100) {
+                    context.strokeStyle = 'rgba(255,215,0,0.1)';
+                    context.beginPath();
+                    context.moveTo(pp.x, pp.y);
+                    context.lineTo(p.x, p.y);
+                    context.stroke();
+                }
+            }
+        }
+    }
     mult += 0.00000001;
     mult = mult >= 1 ? mult % 1: mult;
 }
